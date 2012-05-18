@@ -7,6 +7,10 @@ requests-oauth wants to provide the simplest and easiest way to do OAuth in Pyth
 * Author: <a href="http://www.github.com/maraujop/">Miguel Araujo</a>
 * Licence: BSD
 
+## mart-e's note
+
+This repository is a fork for python 3. Miguel Araujo is the original author.
+
 ## Installation
 
 You can install requests-oauth by simply doing:
