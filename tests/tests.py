@@ -13,9 +13,9 @@ path = os.path.dirname(os.getcwd())
 sys.path.insert(0, path)
 
 from oauth_hook.hook import OAuthHook
-from .test_settings import TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET
-from .test_settings import TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET
-from .test_settings import RDIO_API_KEY, RDIO_SHARED_SECRET
+from test_settings import TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET
+from test_settings import TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET
+from test_settings import RDIO_API_KEY, RDIO_SHARED_SECRET
 
 # Initializing the hook and Python-requests client
 OAuthHook.consumer_key = TWITTER_CONSUMER_KEY

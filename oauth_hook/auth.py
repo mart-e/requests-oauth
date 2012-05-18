@@ -3,12 +3,7 @@ import hmac
 import random
 import urllib.request, urllib.parse, urllib.error
 from urllib.parse import urlparse, urlunparse
-try:
-    from hashlib import sha1
-    sha = sha1
-except ImportError:
-    # hashlib was added in Python 2.5
-    import sha
+from hashlib import sha1
 
 
 escape = lambda url: urllib.parse.quote(to_utf8(url), safe='~')
@@ -63,6 +58,6 @@ class SignatureMethod_HMAC_SHA1(object):
     def sign(self, request, consumer, token):
         """Builds the base signature string."""
         key, raw = self.signing_base(request, consumer, token)
-        hashed = hmac.new(key, raw, sha)
+        hashed = hmac.new(key, raw, sha1)
         # Calculate the digest base 64.
         return binascii.b2a_base64(hashed.digest())[:-1]
