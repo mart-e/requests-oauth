@@ -70,7 +70,8 @@ class TwitterOAuthTestSuite(unittest.TestCase):
         self.test_create_delete_list()
 
     def test_create_delete_list(self):
-        screen_name = json.loads(client.get('http://api.twitter.com/1/account/verify_credentials.json').content.decode('utf-8'))['screen_name']
+        content = client.get('http://api.twitter.com/1/account/verify_credentials.json').content.decode('utf-8')
+        screen_name = json.loads(content)['screen_name']
         user_lists = json.loads(client.get('http://api.twitter.com/1/lists.json', data={'screen_name': screen_name}).content.decode('utf-8'))['lists']
         for list in user_lists:
             if list['name'] == 'OAuth Request Hook':
@@ -79,6 +80,7 @@ class TwitterOAuthTestSuite(unittest.TestCase):
         created_list = json.loads(client.post('http://api.twitter.com/1/%s/lists.json' % screen_name, data={'name': "OAuth Request Hook"}).content.decode('utf-8'))
         list_id = created_list['id']
         response = client.delete('http://api.twitter.com/1/%s/lists/%s.json' % (screen_name, list_id))
+        self.maxDiff  = None
         self.assertEqual(response.status_code, 200)
         self.assertEqual(json.loads(response.content.decode('utf-8')), created_list)
 

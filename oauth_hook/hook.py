@@ -188,8 +188,8 @@ class OAuthHook(object):
             request.oauth_params['oauth_callback'] = request.params.pop('oauth_callback')
 
         request.data_and_params = request.oauth_params.copy()
-        request.oauth_params['oauth_signature'] = self.signature.sign(request, self.consumer, self.token)
-        request.data_and_params['oauth_signature'] = request.oauth_params['oauth_signature']
+        request.data_and_params['oauth_signature'] = self.signature.sign(request, self.consumer, self.token)
+        request.oauth_params['oauth_signature'] = request.data_and_params['oauth_signature'].decode('utf-8')
 
         if request.method in ("GET", "DELETE"):
             if not self.header_auth:
