@@ -6,16 +6,16 @@ import unittest
 import random
 import json
 import requests
-from urlparse import parse_qs
+from urllib.parse import parse_qs
 
 # Insert this package's path in the PYTHON PATH as first route
 path = os.path.dirname(os.getcwd())
 sys.path.insert(0, path)
 
 from oauth_hook.hook import OAuthHook
-from test_settings import TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET
-from test_settings import TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET
-from test_settings import RDIO_API_KEY, RDIO_SHARED_SECRET
+from .test_settings import TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET
+from .test_settings import TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET
+from .test_settings import RDIO_API_KEY, RDIO_SHARED_SECRET
 
 # Initializing the hook and Python-requests client
 OAuthHook.consumer_key = TWITTER_CONSUMER_KEY
@@ -83,7 +83,7 @@ class TwitterOAuthTestSuite(unittest.TestCase):
         self.assertEqual(json.loads(response.content), created_list)
 
     def test_three_legged_auth(self):
-        yes_or_no = raw_input("Do you want to skip Twitter three legged auth test? (y/n):")
+        yes_or_no = input("Do you want to skip Twitter three legged auth test? (y/n):")
         if yes_or_no.lower() in ['y', 'yes']:
             return
 
@@ -104,8 +104,8 @@ class TwitterOAuthTestSuite(unittest.TestCase):
             oauth_secret = response['oauth_token_secret']
 
             # Step 2: Redirecting the user
-            print "Go to https://api.twitter.com/oauth/authenticate?oauth_token=%s and sign in into the application, then enter your PIN" % oauth_token[0]
-            oauth_verifier = raw_input('Please enter your PIN:')
+            print("Go to https://api.twitter.com/oauth/authenticate?oauth_token=%s and sign in into the application, then enter your PIN" % oauth_token[0])
+            oauth_verifier = input('Please enter your PIN:')
 
             # Step 3: Authenticate
             response = client.post('http://api.twitter.com/oauth/access_token', {'oauth_verifier': oauth_verifier, 'oauth_token': oauth_token[0]})

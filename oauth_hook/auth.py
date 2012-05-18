@@ -1,8 +1,8 @@
 import binascii
 import hmac
 import random
-import urllib
-from urlparse import urlparse, urlunparse
+import urllib.request, urllib.parse, urllib.error
+from urllib.parse import urlparse, urlunparse
 try:
     from hashlib import sha1
     sha = sha1
@@ -11,7 +11,7 @@ except ImportError:
     import sha
 
 
-escape = lambda url: urllib.quote(to_utf8(url), safe='~')
+escape = lambda url: urllib.parse.quote(to_utf8(url), safe='~')
 
 def to_utf8(x):
     """
@@ -20,15 +20,15 @@ def to_utf8(x):
     If x is a string returns it encoded, otherwise tries to iter x and 
     encode utf-8 all strings it contains, returning a list.
     """
-    if isinstance(x, basestring): 
-        return x.encode('utf-8') if isinstance(x, unicode) else x
+    if isinstance(x, str): 
+        return x.encode('utf-8') if isinstance(x, str) else x
     try:
         l = iter(x)
     except TypeError:
         return x
     return [to_utf8(i) for i in l]
 
-generate_verifier = lambda length=8: ''.join([str(random.randint(0, 9)) for i in xrange(length)])
+generate_verifier = lambda length=8: ''.join([str(random.randint(0, 9)) for i in range(length)])
 
 
 class OAuthObject(object):

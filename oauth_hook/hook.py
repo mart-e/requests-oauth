@@ -2,12 +2,12 @@
 import time
 from datetime import datetime
 import random
-import urllib
-from urlparse import urlparse, urlunparse, parse_qs, urlsplit, urlunsplit
+import urllib.request, urllib.parse, urllib.error
+from urllib.parse import urlparse, urlunparse, parse_qs, urlsplit, urlunsplit
 
-from auth import Token, Consumer
-from auth import to_utf8, escape
-from auth import SignatureMethod_HMAC_SHA1
+from .auth import Token, Consumer
+from .auth import to_utf8, escape
+from .auth import SignatureMethod_HMAC_SHA1
 
 
 class CustomSignatureMethod_HMAC_SHA1(SignatureMethod_HMAC_SHA1):
@@ -59,8 +59,8 @@ class OAuthHook(object):
         Turns a `query_string` into a Python dictionary with unquoted values
         """
         parameters = parse_qs(to_utf8(query_string), keep_blank_values=True)
-        for k, v in parameters.iteritems():
-            parameters[k] = urllib.unquote(v[0])
+        for k, v in parameters.items():
+            parameters[k] = urllib.parse.unquote(v[0])
         return parameters
 
     @staticmethod
@@ -72,25 +72,25 @@ class OAuthHook(object):
         # See issues #10 and #12
         if ('Content-Type' not in request.headers or \
             request.headers.get('Content-Type') == 'application/x-www-form-urlencoded') \
-            and not isinstance(request.data, basestring):
-            data_and_params = dict(request.data.items() + request.params.items())
+            and not isinstance(request.data, str):
+            data_and_params = dict(list(request.data.items()) + list(request.params.items()))
 
-            for key,value in data_and_params.items():
+            for key,value in list(data_and_params.items()):
                 request.data_and_params[to_utf8(key)] = to_utf8(value)
 
-        if request.data_and_params.has_key('oauth_signature'):
+        if 'oauth_signature' in request.data_and_params:
             del request.data_and_params['oauth_signature']
 
         items = []
-        for key, value in request.data_and_params.iteritems():
+        for key, value in request.data_and_params.items():
             # 1.0a/9.1.1 states that kvp must be sorted by key, then by value,
             # so we unpack sequence values into multiple items for sorting.
-            if isinstance(value, basestring):
+            if isinstance(value, str):
                 items.append((key, value))
             else:
                 try:
                     value = list(value)
-                except TypeError, e:
+                except TypeError as e:
                     assert 'is not iterable' in str(e)
                     items.append((key, value))
                 else:
@@ -98,10 +98,10 @@ class OAuthHook(object):
 
         # Include any query string parameters included in the url
         query_string = urlparse(request.url)[4]
-        items.extend([(to_utf8(k), to_utf8(v)) for k, v in OAuthHook._split_url_string(query_string).items()])
+        items.extend([(to_utf8(k), to_utf8(v)) for k, v in list(OAuthHook._split_url_string(query_string).items())])
         items.sort()
 
-        return urllib.urlencode(items).replace('+', '%20').replace('%7E', '~')
+        return urllib.parse.urlencode(items).replace('+', '%20').replace('%7E', '~')
 
     @staticmethod
     def get_normalized_url(url):
@@ -127,24 +127,24 @@ class OAuthHook(object):
         scheme, netloc, path, query, fragment = urlsplit(to_utf8(request.url))
         query = parse_qs(query)
 
-        for key, value in request.data_and_params.iteritems():
+        for key, value in request.data_and_params.items():
             query.setdefault(key, []).append(value)
             
-        query = urllib.urlencode(query, True)
+        query = urllib.parse.urlencode(query, True)
         return urlunsplit((scheme, netloc, path, query, fragment))
 
     @staticmethod
     def to_postdata(request):
         """Serialize as post data for a POST request. This serializes data and params"""
         # tell urlencode to convert each sequence element to a separate parameter
-        return urllib.urlencode(request.data_and_params, True).replace('+', '%20')
+        return urllib.parse.urlencode(request.data_and_params, True).replace('+', '%20')
 
     @staticmethod
     def authorization_header(oauth_params):
         """Return Authorization header"""
         authorization_headers = 'OAuth realm="",'
-        authorization_headers += ','.join(['{0}="{1}"'.format(k, urllib.quote(str(v)))
-            for k, v in oauth_params.items()])
+        authorization_headers += ','.join(['{0}="{1}"'.format(k, urllib.parse.quote(str(v)))
+            for k, v in list(oauth_params.items())])
         return authorization_headers
 
     def __call__(self, request):
@@ -197,7 +197,7 @@ class OAuthHook(object):
                 # You can pass a string as data. See issues #10 and #12
                 if ('Content-Type' not in request.headers or \
                     request.headers['Content-Type'] != 'application/x-www-form-urlencoded') \
-                    and not isinstance(request.data, basestring):
+                    and not isinstance(request.data, str):
                     request.url = self.to_url(request)
                     request.data = {}
                 else:
