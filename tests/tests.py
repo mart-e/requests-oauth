@@ -36,7 +36,7 @@ class TwitterOAuthTestSuite(unittest.TestCase):
     def test_rate_limit_GET(self):
         response = client.get('http://api.twitter.com/1/account/rate_limit_status.json')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(json.loads(response.content)['hourly_limit'], 350)
+        self.assertEqual(json.loads(response.content.decode('utf-8'))['hourly_limit'], 350)
 
     def test_status_POST_urlencoded(self):
         oauth_hook.header_auth = False
@@ -47,7 +47,7 @@ class TwitterOAuthTestSuite(unittest.TestCase):
         response = client.post('http://api.twitter.com/1/statuses/update.json',
             {'status': message, 'wrap_links': True})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(json.loads(response.content)['text'], message)
+        self.assertEqual(json.loads(response.content.decode('utf-8'))['text'], message)
 
     def test_status_GET_with_data_urlencoded(self):
         oauth_hook.header_auth = False
@@ -70,17 +70,17 @@ class TwitterOAuthTestSuite(unittest.TestCase):
         self.test_create_delete_list()
 
     def test_create_delete_list(self):
-        screen_name = json.loads(client.get('http://api.twitter.com/1/account/verify_credentials.json').content)['screen_name']
-        user_lists = json.loads(client.get('http://api.twitter.com/1/lists.json', data={'screen_name': screen_name}).content)['lists']
+        screen_name = json.loads(client.get('http://api.twitter.com/1/account/verify_credentials.json').content.decode('utf-8'))['screen_name']
+        user_lists = json.loads(client.get('http://api.twitter.com/1/lists.json', data={'screen_name': screen_name}).content.decode('utf-8'))['lists']
         for list in user_lists:
             if list['name'] == 'OAuth Request Hook':
                 client.post('http://api.twitter.com/1/lists/destroy.json', data={'list_id': list['id']})
 
-        created_list = json.loads(client.post('http://api.twitter.com/1/%s/lists.json' % screen_name, data={'name': "OAuth Request Hook"}).content)
+        created_list = json.loads(client.post('http://api.twitter.com/1/%s/lists.json' % screen_name, data={'name': "OAuth Request Hook"}).content.decode('utf-8'))
         list_id = created_list['id']
         response = client.delete('http://api.twitter.com/1/%s/lists/%s.json' % (screen_name, list_id))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(json.loads(response.content), created_list)
+        self.assertEqual(json.loads(response.content.decode('utf-8')), created_list)
 
     def test_three_legged_auth(self):
         yes_or_no = input("Do you want to skip Twitter three legged auth test? (y/n):")
@@ -96,7 +96,7 @@ class TwitterOAuthTestSuite(unittest.TestCase):
             client = requests.session(hooks={'pre_request': twitter_oauth_hook})
             response = client.post('http://api.twitter.com/oauth/request_token', data={'oauth_callback': 'oob'})
             self.assertEqual(response.status_code, 200)
-            response = parse_qs(response.content)
+            response = parse_qs(response.content.decode('utf-8'))
             self.assertTrue(response['oauth_token'])
             self.assertTrue(response['oauth_token_secret'])
 
@@ -109,7 +109,7 @@ class TwitterOAuthTestSuite(unittest.TestCase):
 
             # Step 3: Authenticate
             response = client.post('http://api.twitter.com/oauth/access_token', {'oauth_verifier': oauth_verifier, 'oauth_token': oauth_token[0]})
-            response = parse_qs(response.content)
+            response = parse_qs(response.content.decode('utf-8'))
             self.assertTrue(response['oauth_token'])
             self.assertTrue(response['oauth_token_secret'])
 
@@ -131,7 +131,7 @@ class RdioOAuthTestSuite(unittest.TestCase):
     def test_rdio_oauth_get_token_data(self):
         response = self.client.post('http://api.rdio.com/oauth/request_token', data={'oauth_callback': 'oob'})
         self.assertEqual(response.status_code, 200)
-        response = parse_qs(response.content)
+        response = parse_qs(response.content.decode('utf-8'))
         self.assertTrue(response['oauth_token'])
         self.assertTrue(response['oauth_token_secret'])
 
@@ -139,7 +139,7 @@ class RdioOAuthTestSuite(unittest.TestCase):
         self.client.params = {'oauth_callback': 'oob'}
         response = self.client.post('http://api.rdio.com/oauth/request_token')
         self.assertEqual(response.status_code, 200)
-        response = parse_qs(response.content)
+        response = parse_qs(response.content.decode('utf-8'))
         self.assertTrue(response['oauth_token'])
         self.assertTrue(response['oauth_token_secret'])
 

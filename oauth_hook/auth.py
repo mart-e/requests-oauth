@@ -15,12 +15,12 @@ def to_utf8(x):
     If x is a string returns it encoded, otherwise tries to iter x and 
     encode utf-8 all strings it contains, returning a list.
     """
-    if isinstance(x, str): 
-        return x.encode('utf-8') if isinstance(x, str) else x
+    if isinstance(x, str) or isinstance(x, int): 
+        return x
     try:
         l = iter(x)
     except TypeError:
-        return x
+        return x.decode('utf-8')
     return [to_utf8(i) for i in l]
 
 generate_verifier = lambda length=8: ''.join([str(random.randint(0, 9)) for i in range(length)])
@@ -58,6 +58,6 @@ class SignatureMethod_HMAC_SHA1(object):
     def sign(self, request, consumer, token):
         """Builds the base signature string."""
         key, raw = self.signing_base(request, consumer, token)
-        hashed = hmac.new(key, raw, sha1)
+        hashed = hmac.new(key.encode(), raw.encode(), sha1)
         # Calculate the digest base 64.
         return binascii.b2a_base64(hashed.digest())[:-1]

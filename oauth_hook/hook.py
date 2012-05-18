@@ -92,7 +92,7 @@ class OAuthHook(object):
                     value = list(value)
                 except TypeError as e:
                     assert 'is not iterable' in str(e)
-                    items.append((key, value))
+                    items.append((to_utf8(key), to_utf8(value)))
                 else:
                     items.extend((key, item) for item in value)
 
@@ -131,7 +131,11 @@ class OAuthHook(object):
             query.setdefault(key, []).append(value)
             
         query = urllib.parse.urlencode(query, True)
-        return urlunsplit((scheme, netloc, path, query, fragment))
+        return urlunsplit((to_utf8(scheme),
+                to_utf8(netloc),
+                to_utf8(path),
+                to_utf8(query),
+                to_utf8(fragment)))
 
     @staticmethod
     def to_postdata(request):
