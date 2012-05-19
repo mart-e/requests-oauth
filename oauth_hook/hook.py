@@ -2,7 +2,7 @@
 import time
 from datetime import datetime
 import random
-import urllib.request, urllib.parse, urllib.error
+import urllib.parse, urllib.error
 from urllib.parse import urlparse, urlunparse, parse_qs, urlsplit, urlunsplit
 
 from .auth import Token, Consumer
