@@ -71,14 +71,14 @@ class OAuthHook(object):
         """
         # See issues #10 and #12
         if ('Content-Type' not in request.headers or \
-            request.headers.get('Content-Type') == 'application/x-www-form-urlencoded') \
-            and not isinstance(request.data, str):
+                request.headers.get('Content-Type').startswith('application/x-www-form-urlencoded')) \
+                and not isinstance(request.data, basestring):
             data_and_params = dict(list(request.data.items()) + list(request.params.items()))
-
+            
             for key,value in list(data_and_params.items()):
                 request.data_and_params[to_utf8(key)] = to_utf8(value)
 
-        if 'oauth_signature' in request.data_and_params:
+        if request.data_and_params.has_key('oauth_signature'):
             del request.data_and_params['oauth_signature']
 
         items = []
